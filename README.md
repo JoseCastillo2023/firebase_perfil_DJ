@@ -1,6 +1,10 @@
 ## firebase_perfil_DJ
 Perfil de Firebase
 
+## Integrantes
+Dennis Alejandro Gonzalez Carrillo / 20220440
+Jose Miguel Angel Castillo Portan / 20220005
+
 # Descripción:
 Este repositorio contiene el perfil de Firebase de la aplicación. 
 Ocupando la autentificacion de google con correo y contraseña.
