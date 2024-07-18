@@ -1,90 +1,201 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import Input from '../components/input';
-import Boton from '../components/boton';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+  Image,
+  TextInput
+} from "react-native";
+import {
+  Button
+} from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import { AntDesign, Entypo } from "@expo/vector-icons";
+import { auth } from '../config/firebase'; // Ajusta el path según tu estructura de proyecto
+import { signInWithEmailAndPassword } from "firebase/auth";
 
-const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const auth = getAuth();
+//Constante para manejar el alto de la pantalla
+const windowHeight = Dimensions.get("window").height;
 
-  const handleLogin = () => {
-    console.log('Email:', email, 'Password:', password); 
+const LoginScreen = () => {
+  //Constantes para el manejo de datos
+  const [correo, setCorreo] = useState("");
+  const [clave, setClave] = useState("");
+  const [error, setError] = useState("");
 
-    if (!email || !password) {
-      console.error('Email and password must not be empty');
-      return;
+  //Constante de navegación entre pantallas
+  const navigation = useNavigation();
+
+  //Metodo para manejar el inicio de sesión de usuarios
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, correo, clave);
+      const user = userCredential.user;
+      console.log("User logged in: ", user);
+      // Navegar a la pantalla principal o la que desees después del inicio de sesión
+      navigation.navigate("Home"); // Ajusta "Home" a la pantalla a la que quieres navegar
+    } catch (error) {
+      console.error("Error logging in: ", error);
+      setError("Error al iniciar sesión. Por favor, verifica tus credenciales.");
     }
-
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('Logged in with:', user.email);
-        navigation.navigate('Home');
-      })
-      .catch((error) => {
-        console.error(error);
-      });
   };
 
+  // Limpiar campos al montar el componente
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setCorreo('');
+      setClave('');
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   return (
-    <View>
-      <View style={styles.contenedor}>
-        <Text style={styles.titulo}>Login</Text>
-        <Input
-            onChangeText={setEmail}
-            value={email}
-            placeholder="Email"
-        />
-        <Input
-            onChangeText={setPassword}
-            value={password}
-            placeholder="Clave"
-            secureTextEntry
-        />
-        <Boton
-            textoBoton="Login"
-            accionBoton={handleLogin}
-        />
-        <View style={styles.contenedorText}>
-          <Text style={styles.textoRegistro} onPress={() => navigation.navigate('Register')}>No tienes cuenta</Text>
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <View style={styles.container}>
+        <Image source={require('../img/users.png')} style={styles.logo} />
+        <Text style={styles.title}>Bienvenido </Text>
+        <View style={styles.inputContainer}>
+          <View style={styles.rowContent}>
+            <TextInput
+              style={styles.correoInput}
+              value={correo}
+              onChangeText={setCorreo}
+              placeholder="Correo electrónico:"
+              placeholderTextColor={"#000"}
+              keyboardType="email-address" />
+          </View>
         </View>
+        <View style={styles.inputContainer}>
+          <View style={styles.rowContent}>
+            <TextInput
+              style={styles.correoInput}
+              value={clave}
+              onChangeText={setClave}
+              placeholder="Contraseña:"
+              placeholderTextColor={"#000"}
+              secureTextEntry={true}
+            />
+          </View>
+        </View>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <Button
+          style={styles.button}
+          mode="contained"
+          onPress={handleLogin}
+        >
+          Iniciar Sesión
+        </Button>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Register")}
+        >
+          <Text style={styles.loginText}>
+            ¿No tienes cuenta? Registrate aquí
+          </Text>
+        </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
+
   );
 };
 
+export default LoginScreen;
+
 const styles = StyleSheet.create({
-  contenedor: {
-    margin: 20,
-    padding: 20,
-    borderRadius: 20,
-    backgroundColor: '#E3E3E3',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.55,
-    shadowRadius: 3.84,
-    elevation: 5,
+  scrollViewContent: {
+    flexGrow: 1,
   },
-  titulo: {
-    textAlign: 'center',
-    fontFamily: 'Arial',
-    fontSize: 26,
-    fontWeight: 'bold',
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    marginBottom: windowHeight * 0.15,
+    paddingTop: 50,
   },
-  contenedorText: {
-    alignSelf: 'center',
+  logo: {
+    marginTop: 1,
+    alignItems: "center",
+    marginBottom: 10,
+    width: 200,
+    height: 200,
+    marginRight: 60,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 30,
+    marginBottom: 20,
+    marginRight: 200
+  },
+  profileCard: {
+    width: "100%",
+    marginTop: 1,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "white",
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    color: "gray",
+    marginBottom: 5,
+  },
+  infoRow: {
+    padding: 12,
+    margin: 2,
+    borderRadius: 10,
+    width: "100%",
+    elevation: 2,
+  },
+  rowContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  correoInput: {
+    borderRadius: 10,
+    width: "100%",
+    height: 43,
+    paddingHorizontal: 10,
+    color: "black",
+    marginBottom: 10,
     marginTop: 10,
+    borderColor: "black",
+    borderWidth: 2,
+    backgroundColor: 'white'
   },
-  textoRegistro: {
-    fontFamily: 'Arial',
+  pickerText: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    color: "black",
+    flex: 1,
+  },
+  fila: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  button: {
+    width: "100%",
+    paddingVertical: 10,
+    marginTop: 10,
+    backgroundColor: "blue",
+  },
+  loginText: {
+    marginTop: 20,
+    color: "black",
+    textAlign: 'center'
+
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 10,
     textAlign: 'center',
-    width: 150,
   },
 });
-
-export default LoginScreen;

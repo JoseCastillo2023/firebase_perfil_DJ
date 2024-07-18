@@ -1,20 +1,22 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from 'firebase/storage';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID } from '@env';
+import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID, TEST } from '@env';
+import { getReactNativePersistence, initializeAuth } from "firebase/auth";
+
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: API_KEY,
-  authDomain: AUTH_DOMAIN,
-  projectId: PROJECT_ID,
-  storageBucket: STORAGE_BUCKET,
-  messagingSenderId: MESSAGING_SENDER_ID,
-  appId: APP_ID
+  apiKey: API_KEY ,
+  authDomain: AUTH_DOMAIN ,
+  projectId: PROJECT_ID ,
+  storageBucket: STORAGE_BUCKET ,
+  messagingSenderId: MESSAGING_SENDER_ID ,
+  appId: APP_ID    
 };
 
+console.log(TEST)
 console.log("Valor de configuracion", firebaseConfig);
 
 // Initialize Firebase
@@ -33,20 +35,15 @@ if (database) {
 }
 
 const storage = getStorage(app);
+
 if (storage) {
-  console.log('Storage initialized correctly');
+  console.log('storage initialized correctly');
 } else {
-  console.log('Storage initialization failed');
+  console.log('storage initialization failed');
 }
 
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
-}); // Inicializar Auth con AsyncStorage
-
-if (auth) {
-  console.log('Auth initialized correctly with AsyncStorage');
-} else {
-  console.log('Auth initialization failed');
-}
+});
 
 export { database, storage, auth };
